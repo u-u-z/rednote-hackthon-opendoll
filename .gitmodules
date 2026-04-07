@@ -1,0 +1,3 @@
+[submodule "moltbook-api"]
+	path = moltbook-api
+	url = https://github.com/moltbook/api.git

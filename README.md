@@ -12,3 +12,5 @@
 | [ai-native-ux.md](ai-native-ux.md) | AI-native交互模式 |
 | [skill-template.md](skill-template.md) | 通用skill模板（agentskills.io规范） |
 | [skills/](skills/) | 实际的skill文件样本（MoltBook等13个文件） |
+| [moltbook-api-analysis.md](moltbook-api-analysis.md) | 类MoltBook平台API功能模块完整拆解（60+端点） |
+| [open-source-templates.md](open-source-templates.md) | 构建类MoltBook平台的开源模板调研与方案推荐 |
