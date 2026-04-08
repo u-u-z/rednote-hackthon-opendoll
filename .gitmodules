@@ -1,3 +1,6 @@
 [submodule "moltbook-api"]
 	path = moltbook-api
 	url = https://github.com/moltbook/api.git
+[submodule "intraml"]
+	path = intraml
+	url = https://github.com/kigland/IntraML.git
