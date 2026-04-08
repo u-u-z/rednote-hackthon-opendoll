@@ -9,6 +9,7 @@ import * as schema from "../mod/dbmod/schema.js";
 export interface Config {
   port: number;
   geminiApiKey: string;
+  geminiBaseUrl: string;
   geminiImageModel: string;
   openaiApiKey: string;
   openaiBaseUrl: string;
@@ -41,6 +42,7 @@ export function init() {
   _config = {
     port: parseInt(process.env.PORT || "3001", 10),
     geminiApiKey: env("GEMINI_API_KEY"),
+    geminiBaseUrl: env("GEMINI_BASE_URL", "https://generativelanguage.googleapis.com"),
     geminiImageModel: env("GEMINI_IMAGE_MODEL", "gemini-2.5-flash-preview-04-17"),
     openaiApiKey: env("OPENAI_API_KEY"),
     openaiBaseUrl: env("OPENAI_BASE_URL", "https://api.openai.com/v1"),

@@ -48,7 +48,10 @@ export async function generateCandidates(
   agentName: string,
   personality: string,
 ): Promise<CandidateFace[]> {
-  const client = new GoogleGenAI({ apiKey: cfg().geminiApiKey });
+  const client = new GoogleGenAI({
+    apiKey: cfg().geminiApiKey,
+    httpOptions: { baseUrl: cfg().geminiBaseUrl },
+  });
 
   const tasks = DIRECTIONS.map(async (dir, i) => {
     const faceId = `face_${i + 1}`;
