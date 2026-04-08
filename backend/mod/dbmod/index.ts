@@ -7,6 +7,7 @@ export interface SessionRow {
   candidates: string | null;
   thinking: string | null;
   chosen_face: string | null;
+  token_hash: string;
   status: string;
   created_at: string;
 }

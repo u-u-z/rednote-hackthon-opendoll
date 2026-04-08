@@ -38,6 +38,7 @@ export interface CreateSessionReq {
 
 export interface CreateSessionResp {
   session_id: string;
+  token: string;
 }
 
 export interface GenerateResp {

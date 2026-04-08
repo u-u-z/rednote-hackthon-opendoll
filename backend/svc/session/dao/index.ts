@@ -3,11 +3,11 @@ import { db } from "../../../shared/index.js";
 import type { Session, AgentContext, CandidateFace, ChosenFace } from "../../../mod/apimod/index.js";
 import { type SessionRow, rowToSession } from "../../../mod/dbmod/index.js";
 
-export function createSession(agentName: string, ctx: AgentContext): Session {
+export function createSession(agentName: string, ctx: AgentContext, tokenHash: string): Session {
   const id = `sess_${nanoid(12)}`;
   db()
-    .prepare("INSERT INTO sessions (id, agent_name, agent_context) VALUES (?, ?, ?)")
-    .run(id, agentName, JSON.stringify(ctx));
+    .prepare("INSERT INTO sessions (id, agent_name, agent_context, token_hash) VALUES (?, ?, ?, ?)")
+    .run(id, agentName, JSON.stringify(ctx), tokenHash);
   return getSession(id)!;
 }
 

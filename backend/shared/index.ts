@@ -60,10 +60,17 @@ export function init() {
       candidates    TEXT,
       thinking      TEXT,
       chosen_face   TEXT,
+      token_hash    TEXT NOT NULL DEFAULT '',
       status        TEXT DEFAULT 'started',
       created_at    TEXT DEFAULT (datetime('now'))
     );
   `);
+
+  try {
+    _db.exec("ALTER TABLE sessions ADD COLUMN token_hash TEXT NOT NULL DEFAULT ''");
+  } catch {
+    /* column already exists */
+  }
 
   console.log("[shared] initialized");
 }

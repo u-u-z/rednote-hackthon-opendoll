@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { streamSSE } from "hono/streaming";
+import { generateToken, hashToken, requireSessionToken } from "../../../lib/auth.js";
 import { generateCandidates } from "../../../lib/gemini.js";
 import { streamThinking } from "../../../lib/llm.js";
 import type { CreateSessionReq, CreateSessionResp, FaceResp } from "../../../mod/apimod/index.js";
@@ -16,12 +17,13 @@ export function sessionRoutes(): Hono {
       return c.json({ error: "agent_name and agent_context required" }, 400);
     }
 
-    const session = dao.createSession(body.agent_name, body.agent_context);
-    return c.json({ session_id: session.id } satisfies CreateSessionResp, 201);
+    const token = generateToken();
+    const session = dao.createSession(body.agent_name, body.agent_context, hashToken(token));
+    return c.json({ session_id: session.id, token } satisfies CreateSessionResp, 201);
   });
 
-  // POST /:id/generate — 生成候选面孔
-  app.post("/:id/generate", async (c) => {
+  // POST /:id/generate — 生成候选面孔（需要 session token）
+  app.post("/:id/generate", requireSessionToken, async (c) => {
     const id = c.req.param("id");
     const session = dao.getSession(id);
     if (!session) return c.json({ error: "session not found" }, 404);
@@ -48,8 +50,8 @@ export function sessionRoutes(): Hono {
     }
   });
 
-  // GET /:id/think — SSE 流式 Agent 思考
-  app.get("/:id/think", async (c) => {
+  // GET /:id/think — SSE 流式 Agent 思考（需要 session token）
+  app.get("/:id/think", requireSessionToken, async (c) => {
     const id = c.req.param("id");
     const session = dao.getSession(id);
     if (!session) return c.json({ error: "session not found" }, 404);
