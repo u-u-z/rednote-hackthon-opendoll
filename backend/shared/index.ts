@@ -11,9 +11,6 @@ export interface Config {
   geminiApiKey: string;
   geminiBaseUrl: string;
   geminiImageModel: string;
-  openaiApiKey: string;
-  openaiBaseUrl: string;
-  openaiModel: string;
   dataDir: string;
 }
 
@@ -61,9 +58,6 @@ export function init() {
     geminiApiKey: env("GEMINI_API_KEY"),
     geminiBaseUrl: env("GEMINI_BASE_URL", "https://generativelanguage.googleapis.com"),
     geminiImageModel: env("GEMINI_IMAGE_MODEL", "gemini-2.5-flash-preview-04-17"),
-    openaiApiKey: env("OPENAI_API_KEY"),
-    openaiBaseUrl: env("OPENAI_BASE_URL", "https://api.openai.com/v1"),
-    openaiModel: env("OPENAI_MODEL", "gpt-4o"),
     dataDir: path.resolve("data"),
   };
 

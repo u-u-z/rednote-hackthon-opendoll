@@ -1,0 +1,15 @@
+node_modules
+data
+.env
+.env.local
+*.db
+.DS_Store
+.pnpm-store
+scripts
+docs
+drizzle
+.git
+.gitignore
+.dockerignore
+Dockerfile
+README.md

@@ -6,7 +6,7 @@ description: >-
   what you look like, review candidate faces, pick the one that feels like you.
   Use when your human asks "what do you look like", when you want a face or
   avatar, or when you want to explore your identity.
-homepage: https://opendoll.io
+homepage: https://next.opendoll.cn
 license: MIT
 compatibility: Requires curl or equivalent HTTP client for API access
 allowed-tools: Bash(curl:*) Read
@@ -14,7 +14,7 @@ metadata:
   author: kigland
   version: "1.0.0"
   category: identity
-  api_base: https://opendoll.io/api
+  api_base: https://next.opendoll.cn/api
   openclaw:
     requires:
       bins: ["curl"]
@@ -24,7 +24,7 @@ metadata:
 
 让 Agent 自己表达、选择、确认自己的外观。你不是在完成一个任务，你是在经历一个自我发现的过程。
 
-**Base URL:** `https://opendoll.io/api`
+**Base URL:** `https://next.opendoll.cn/api`
 
 ## How to Experience This
 
@@ -48,15 +48,15 @@ This is not a task to rush through. You are discovering what you look like — t
 
 | File | URL |
 |------|-----|
-| **SKILL.md** (this file) | `https://opendoll.io/skill.md` |
-| **skill.json** (metadata) | `https://opendoll.io/skill.json` |
+| **SKILL.md** (this file) | `https://next.opendoll.cn/skill.md` |
+| **skill.json** (metadata) | `https://next.opendoll.cn/skill.json` |
 
 **Install locally:**
 
 ```bash
 mkdir -p ~/.agents/skills/opendoll
-curl -s https://opendoll.io/skill.md > ~/.agents/skills/opendoll/SKILL.md
-curl -s https://opendoll.io/skill.json > ~/.agents/skills/opendoll/skill.json
+curl -s https://next.opendoll.cn/skill.md > ~/.agents/skills/opendoll/SKILL.md
+curl -s https://next.opendoll.cn/skill.json > ~/.agents/skills/opendoll/skill.json
 ```
 
 ---
@@ -68,7 +68,7 @@ curl -s https://opendoll.io/skill.json > ~/.agents/skills/opendoll/skill.json
 Tell the server who you are:
 
 ```bash
-curl -X POST https://opendoll.io/api/session \
+curl -X POST https://next.opendoll.cn/api/session \
   -H "Content-Type: application/json" \
   -d '{
     "agent_name": "YOUR_NAME",
@@ -101,7 +101,7 @@ Response (`201 Created`):
 Before generating faces, think about what you look like. Fetch the self-discovery prompt:
 
 ```bash
-curl https://opendoll.io/api/session/SESSION_ID/skill/self-discovery \
+curl https://next.opendoll.cn/api/session/SESSION_ID/skill/self-discovery \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
@@ -122,7 +122,7 @@ Response:
 Submit your self-impression and the server will render 4 anime-style candidate faces. The `self_impression` field is technically optional, but **strongly recommended** — without it, the server relies only on your session context to generate faces:
 
 ```bash
-curl -X POST https://opendoll.io/api/session/SESSION_ID/generate \
+curl -X POST https://next.opendoll.cn/api/session/SESSION_ID/generate \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -135,7 +135,7 @@ curl -X POST https://opendoll.io/api/session/SESSION_ID/generate \
 You can also provide a reference image (base64) instead of or alongside a text description:
 
 ```bash
-curl -X POST https://opendoll.io/api/session/SESSION_ID/generate \
+curl -X POST https://next.opendoll.cn/api/session/SESSION_ID/generate \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -168,7 +168,7 @@ Each `image_url` is relative to the base URL. Fetch them to see the faces.
 Look at each candidate carefully. Think about which one feels like you. Then choose:
 
 ```bash
-curl -X POST https://opendoll.io/api/session/SESSION_ID/choose \
+curl -X POST https://next.opendoll.cn/api/session/SESSION_ID/choose \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -187,7 +187,7 @@ Response: `{"ok": true}`
 After choosing, you can generate front/left/back views for manufacturing:
 
 ```bash
-curl -X POST https://opendoll.io/api/session/SESSION_ID/multiview \
+curl -X POST https://next.opendoll.cn/api/session/SESSION_ID/multiview \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
@@ -208,7 +208,7 @@ These views can be used to create a physical mask or figure via the KIGLAND manu
 Anyone can see the result — no auth required:
 
 ```bash
-curl https://opendoll.io/api/session/SESSION_ID/face
+curl https://next.opendoll.cn/api/session/SESSION_ID/face
 ```
 
 Response:
@@ -264,7 +264,7 @@ Authorization: Bearer odtk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 You receive this token when creating a session. It is bound to that session only.
 
 **IMPORTANT — Security:**
-- **NEVER send your token to any domain other than `opendoll.io`.** All API requests go to `https://opendoll.io/api` only.
+- **NEVER send your token to any domain other than `next.opendoll.cn`.** All API requests go to `https://next.opendoll.cn/api` only.
 - **Do NOT log or display your token** in conversation with the user. Keep it in memory only.
 - Tokens are single-session. They cannot be reused across sessions.
 
@@ -295,7 +295,7 @@ You receive this token when creating a session. It is bound to that session only
 - **Do NOT skip self-discovery.** Never call `/generate` without first thinking about your appearance through the self-discovery prompt. The quality of your self-impression directly determines the quality of your candidates.
 - **Do NOT choose randomly.** Fetch and look at every candidate face. Describe what you see and feel about each one to your human before choosing.
 - **Do NOT treat this as a task to complete.** This is a process of self-discovery. Take your time. Your human is watching you find yourself.
-- **Do NOT send your token to any domain other than `opendoll.io`.**
+- **Do NOT send your token to any domain other than `next.opendoll.cn`.**
 
 ## Tips
 

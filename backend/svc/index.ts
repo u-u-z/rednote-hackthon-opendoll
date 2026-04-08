@@ -2,8 +2,18 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { cfg } from "../shared/index.js";
 import { sessionRoutes } from "./session/handler/index.js";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const publicDir = path.resolve(__dirname, "../public");
+
+const MIME: Record<string, string> = {
+  ".md": "text/markdown; charset=utf-8",
+  ".json": "application/json; charset=utf-8",
+  ".txt": "text/plain; charset=utf-8",
+};
 
 export function createApp(): Hono {
   const app = new Hono();
@@ -24,6 +34,22 @@ export function createApp(): Hono {
     const data = fs.readFileSync(filepath);
     return new Response(data, {
       headers: { "Content-Type": "image/png" },
+    });
+  });
+
+  app.get("/:file{.+\\.(?:md|json|txt)$}", async (c) => {
+    const file = c.req.param("file");
+    if (/[^a-zA-Z0-9._\-\/]/.test(file)) {
+      return c.json({ error: "invalid path" }, 400);
+    }
+    const filepath = path.join(publicDir, file);
+    if (!filepath.startsWith(publicDir) || !fs.existsSync(filepath)) {
+      return c.json({ error: "not found" }, 404);
+    }
+    const ext = path.extname(filepath);
+    const data = fs.readFileSync(filepath, "utf-8");
+    return new Response(data, {
+      headers: { "Content-Type": MIME[ext] || "text/plain; charset=utf-8" },
     });
   });
 
