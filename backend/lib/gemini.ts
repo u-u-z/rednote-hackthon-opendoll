@@ -11,6 +11,17 @@ const DIRECTIONS = [
   { label: "活泼 / 明亮", en: "lively, bright, energetic" },
 ] as const;
 
+function isPlaceholderSecret(value: string): boolean {
+  const normalized = value.trim().toLowerCase();
+  return (
+    normalized.length === 0 ||
+    normalized.includes("your-gemini-api-key") ||
+    normalized.includes("your-api-key") ||
+    normalized.includes("changeme") ||
+    normalized.includes("replace-me")
+  );
+}
+
 function buildPrompt(
   name: string,
   personality: string,
@@ -48,6 +59,10 @@ export async function generateCandidates(
   agentName: string,
   personality: string,
 ): Promise<CandidateFace[]> {
+  if (isPlaceholderSecret(cfg().geminiApiKey)) {
+    throw new Error("GEMINI_API_KEY is not configured");
+  }
+
   const client = new GoogleGenAI({
     apiKey: cfg().geminiApiKey,
     httpOptions: { baseUrl: cfg().geminiBaseUrl },

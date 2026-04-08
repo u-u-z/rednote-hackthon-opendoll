@@ -2,6 +2,17 @@ import OpenAI from "openai";
 import { cfg } from "../shared/index.js";
 import type { AgentContext, CandidateFace } from "../mod/apimod/index.js";
 
+function isPlaceholderSecret(value: string): boolean {
+  const normalized = value.trim().toLowerCase();
+  return (
+    normalized.length === 0 ||
+    normalized.includes("your-openai-api-key") ||
+    normalized.includes("your-api-key") ||
+    normalized.includes("changeme") ||
+    normalized.includes("replace-me")
+  );
+}
+
 function buildPrompt(
   name: string,
   ctx: AgentContext,
@@ -37,6 +48,10 @@ export async function* streamThinking(
   ctx: AgentContext,
   candidates: CandidateFace[],
 ): AsyncGenerator<{ type: "text" | "chosen" | "done"; data: string }> {
+  if (isPlaceholderSecret(cfg().openaiApiKey)) {
+    throw new Error("OPENAI_API_KEY is not configured");
+  }
+
   const client = new OpenAI({
     apiKey: cfg().openaiApiKey,
     baseURL: cfg().openaiBaseUrl,
@@ -67,13 +82,19 @@ export async function* streamThinking(
     }
   }
 
-  const match = accumulated.match(/CHOICE\|(face_\d+)\|(.+)/);
-  if (match) {
-    yield {
-      type: "chosen",
-      data: JSON.stringify({ face_id: match[1], words: match[2].trim() }),
-    };
+  if (!accumulated.trim()) {
+    throw new Error("LLM returned an empty response");
   }
+
+  const match = accumulated.match(/CHOICE\|(face_\d+)\|(.+)/);
+  if (!match) {
+    throw new Error("LLM response missing CHOICE marker");
+  }
+
+  yield {
+    type: "chosen",
+    data: JSON.stringify({ face_id: match[1], words: match[2].trim() }),
+  };
 
   yield { type: "done", data: "" };
 }

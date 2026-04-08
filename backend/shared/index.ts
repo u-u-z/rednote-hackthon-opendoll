@@ -20,6 +20,23 @@ export interface Config {
 let _config: Config;
 let _orm: ReturnType<typeof drizzle>;
 
+function ensureSchema(sqlite: Database.Database) {
+  // Keep local dev bootable even before drizzle has been run once.
+  sqlite.exec(`
+    CREATE TABLE IF NOT EXISTS sessions (
+      id TEXT PRIMARY KEY NOT NULL,
+      agent_name TEXT NOT NULL,
+      agent_context TEXT NOT NULL,
+      candidates TEXT,
+      thinking TEXT,
+      chosen_face TEXT,
+      token_hash TEXT DEFAULT '' NOT NULL,
+      status TEXT DEFAULT 'started' NOT NULL,
+      created_at TEXT DEFAULT (datetime('now')) NOT NULL
+    );
+  `);
+}
+
 export function cfg(): Config {
   if (!_config) throw new Error("call init() first");
   return _config;
@@ -55,6 +72,7 @@ export function init() {
   const dbPath = path.join(_config.dataDir, "opendoll.db");
   const sqlite = new Database(dbPath);
   sqlite.pragma("journal_mode = WAL");
+  ensureSchema(sqlite);
   _orm = drizzle(sqlite, { schema });
 
   console.log("[shared] initialized");

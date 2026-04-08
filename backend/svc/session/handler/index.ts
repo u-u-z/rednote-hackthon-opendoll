@@ -6,6 +6,23 @@ import { streamThinking } from "../../../lib/llm.js";
 import type { CreateSessionReq, CreateSessionResp, FaceResp } from "../../../mod/apimod/index.js";
 import * as dao from "../dao/index.js";
 
+function extractErrorMessage(err: unknown, fallback: string): string {
+  if (!(err instanceof Error)) return fallback;
+
+  try {
+    const parsed = JSON.parse(err.message) as {
+      error?: { message?: string };
+    };
+    if (parsed.error?.message) {
+      return parsed.error.message;
+    }
+  } catch {
+    // Keep the original error message when it's not JSON.
+  }
+
+  return err.message || fallback;
+}
+
 export function sessionRoutes(): Hono {
   const app = new Hono();
 
@@ -44,7 +61,7 @@ export function sessionRoutes(): Hono {
       dao.updateCandidates(id, candidates);
       return c.json({ candidates });
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "generation failed";
+      const msg = extractErrorMessage(err, "generation failed");
       console.error("[generate]", err);
       return c.json({ error: msg }, 500);
     }
@@ -88,7 +105,7 @@ export function sessionRoutes(): Hono {
           });
         }
       } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : "thinking failed";
+        const msg = extractErrorMessage(err, "thinking failed");
         console.error("[think]", err);
         await stream.writeSSE({
           event: "error",
