@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, desc, isNotNull } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { orm } from "../../../shared/index.js";
 import { sessions } from "../../../mod/dbmod/schema.js";
@@ -34,4 +34,14 @@ export function updateChosenFace(id: string, face: ChosenFace) {
     .set({ chosenFace: face, status: "revealed" })
     .where(eq(sessions.id, id))
     .run();
+}
+
+export function listRevealedSessions(limit = 20) {
+  return orm()
+    .select()
+    .from(sessions)
+    .where(isNotNull(sessions.chosenFace))
+    .orderBy(desc(sessions.createdAt))
+    .limit(limit)
+    .all();
 }

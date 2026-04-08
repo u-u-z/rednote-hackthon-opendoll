@@ -1,9 +1,25 @@
 # ============================================================
 # opendoll-backend Docker image
-# Multi-stage build for optimized image size
+# Multi-stage build: frontend → backend deps → runtime
 # ============================================================
 
-# ============ Dependencies stage ============
+# ============ Frontend build stage ============
+FROM node:20-alpine AS frontend
+
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+WORKDIR /app/frontend
+
+COPY frontend/package.json frontend/pnpm-lock.yaml ./
+
+RUN pnpm install --frozen-lockfile
+
+COPY frontend/ ./
+
+RUN pnpm build
+
+
+# ============ Backend dependencies stage ============
 FROM node:20-alpine AS deps
 
 RUN corepack enable && corepack prepare pnpm@latest --activate
@@ -40,6 +56,8 @@ COPY mod ./mod
 COPY lib ./lib
 COPY shared ./shared
 COPY public ./public
+
+COPY --from=frontend /app/frontend/dist ./frontend/dist
 
 RUN mkdir -p /app/data/images && chown -R appuser:nodejs /app/data
 

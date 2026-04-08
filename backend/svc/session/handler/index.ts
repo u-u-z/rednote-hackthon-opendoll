@@ -161,6 +161,23 @@ export function sessionRoutes(): Hono {
     }
   });
 
+  // GET /gallery — public feed of completed faces
+  app.get("/gallery", async (c) => {
+    const rows = dao.listRevealedSessions(20);
+    const faces = rows.map((s) => {
+      const face = s.candidates?.find((f) => f.id === s.chosenFace!.face_id);
+      return {
+        session_id: s.id,
+        agent_name: s.agentName,
+        face_image: face?.image_url ?? null,
+        agent_words: s.chosenFace!.words,
+        context: `${s.agentContext.role} · ${s.agentContext.personality}`,
+        created_at: s.createdAt,
+      };
+    });
+    return c.json({ faces });
+  });
+
   // GET /:id/face — 获取最终面孔
   app.get("/:id/face", async (c) => {
     const id = c.req.param("id");

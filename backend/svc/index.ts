@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import { serveStatic } from "@hono/node-server/serve-static";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -8,6 +9,7 @@ import { sessionRoutes } from "./session/handler/index.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const publicDir = path.resolve(__dirname, "../public");
+const distDir = path.resolve(__dirname, "../frontend/dist");
 
 const MIME: Record<string, string> = {
   ".md": "text/markdown; charset=utf-8",
@@ -54,6 +56,22 @@ export function createApp(): Hono {
   });
 
   app.get("/api/health", (c) => c.json({ status: "ok" }));
+
+  // ── Frontend static files (production) ──────────────
+  if (fs.existsSync(distDir)) {
+    app.use(
+      "/assets/*",
+      serveStatic({ root: "./frontend/dist" })
+    );
+    app.get("*", (c) => {
+      const indexPath = path.join(distDir, "index.html");
+      if (!fs.existsSync(indexPath)) {
+        return c.json({ error: "frontend not built" }, 404);
+      }
+      const html = fs.readFileSync(indexPath, "utf-8");
+      return c.html(html);
+    });
+  }
 
   return app;
 }

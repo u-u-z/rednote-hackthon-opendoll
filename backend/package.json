@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch cmd/main/main.ts",
+    "dev:front": "cd frontend && pnpm dev",
+    "build:front": "cd frontend && pnpm install && pnpm build",
     "start": "tsx cmd/main/main.ts",
     "deploy": "bash scripts/deploy.sh",
     "db:push": "drizzle-kit push",

@@ -4,7 +4,3 @@ node_modules/
 .env
 *.db
 .pnpm-store/
-intraml/
-moltbook-api/
-moltbook-frontend/
-kigland-2026/
