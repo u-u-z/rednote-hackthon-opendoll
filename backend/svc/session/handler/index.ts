@@ -1,12 +1,13 @@
 import { Hono } from "hono";
 import { generateToken, hashToken, requireSessionToken } from "../../../lib/auth.js";
-import { generateCandidates } from "../../../lib/gemini.js";
+import { generateCandidates, generateMultiview } from "../../../lib/gemini.js";
 import type {
   ChooseReq,
   CreateSessionReq,
   CreateSessionResp,
   FaceResp,
   GenerateReq,
+  MultiviewResp,
   SkillPromptResp,
 } from "../../../mod/apimod/index.js";
 import * as dao from "../dao/index.js";
@@ -132,6 +133,32 @@ export function sessionRoutes(): Hono {
 
       output_hint: "将 Agent 的回复作为 self_impression.description 传入 POST /:id/generate",
     } satisfies SkillPromptResp);
+  });
+
+  // POST /:id/multiview — 生成选中面孔的三视图（需要 session token + 已选脸）
+  app.post("/:id/multiview", requireSessionToken, async (c) => {
+    const id = c.req.param("id");
+    const session = dao.getSession(id);
+    if (!session) return c.json({ error: "session not found" }, 404);
+    if (!session.chosenFace) {
+      return c.json({ error: "choose a face first" }, 400);
+    }
+
+    const face = session.candidates?.find(
+      (f) => f.id === session.chosenFace!.face_id,
+    );
+    if (!face) {
+      return c.json({ error: "chosen face not found in candidates" }, 400);
+    }
+
+    try {
+      const result = await generateMultiview(session.id, face.image_url);
+      return c.json(result satisfies MultiviewResp);
+    } catch (err: unknown) {
+      const msg = extractErrorMessage(err, "multiview generation failed");
+      console.error("[multiview]", err);
+      return c.json({ error: msg }, 500);
+    }
   });
 
   // GET /:id/face — 获取最终面孔

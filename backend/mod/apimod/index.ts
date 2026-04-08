@@ -60,3 +60,9 @@ export interface SkillPromptResp {
   user: string;
   output_hint: string;
 }
+
+export interface MultiviewResp {
+  front: string;
+  left: string;
+  back: string;
+}

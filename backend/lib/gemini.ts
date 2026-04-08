@@ -2,7 +2,7 @@ import { GoogleGenAI, type Content } from "@google/genai";
 import fs from "node:fs";
 import path from "node:path";
 import { cfg } from "../shared/index.js";
-import type { CandidateFace, SelfImpression } from "../mod/apimod/index.js";
+import type { CandidateFace, MultiviewResp, SelfImpression } from "../mod/apimod/index.js";
 
 const DIRECTIONS = [
   { label: "锐利 / 力量感", en: "sharp, powerful, battle-ready" },
@@ -170,4 +170,78 @@ export async function generateCandidates(
   });
 
   return Promise.all(tasks);
+}
+
+// ── Multiview generation (ported from IntraML three_view) ──
+
+const MULTIVIEW_PROMPTS = { front: "", left: "", back: "" } as const;
+
+type ViewAngle = keyof typeof MULTIVIEW_PROMPTS;
+
+async function generateView(
+  client: GoogleGenAI,
+  sessionId: string,
+  sourceImagePath: string,
+  angle: ViewAngle,
+): Promise<string> {
+  const sourceData = fs.readFileSync(sourceImagePath);
+  const b64 = sourceData.toString("base64");
+
+  const response = await client.models.generateContent({
+    model: cfg().geminiImageModel,
+    contents: [
+      {
+        role: "user" as const,
+        parts: [
+          { text: MULTIVIEW_PROMPTS[angle] },
+          { inlineData: { mimeType: "image/png", data: b64 } },
+        ],
+      },
+    ],
+  });
+
+  const parts = response.candidates?.[0]?.content?.parts;
+  if (!parts) throw new Error(`No response for ${angle} view`);
+
+  for (const part of parts) {
+    if (part.inlineData) {
+      const imgDir = path.join(cfg().dataDir, "images");
+      const filename = `${sessionId}_mv_${angle}.png`;
+      fs.writeFileSync(
+        path.join(imgDir, filename),
+        Buffer.from(part.inlineData.data!, "base64"),
+      );
+      return `/api/images/${filename}`;
+    }
+  }
+
+  throw new Error(`No image in response for ${angle} view`);
+}
+
+export async function generateMultiview(
+  sessionId: string,
+  chosenFaceUrl: string,
+): Promise<MultiviewResp> {
+  if (isPlaceholderSecret(cfg().geminiApiKey)) {
+    throw new Error("GEMINI_API_KEY is not configured");
+  }
+
+  const filename = chosenFaceUrl.replace("/api/images/", "");
+  const sourceImagePath = path.join(cfg().dataDir, "images", filename);
+  if (!fs.existsSync(sourceImagePath)) {
+    throw new Error("Chosen face image not found on disk");
+  }
+
+  const client = new GoogleGenAI({
+    apiKey: cfg().geminiApiKey,
+    httpOptions: { baseUrl: cfg().geminiBaseUrl },
+  });
+
+  const [front, left, back] = await Promise.all([
+    generateView(client, sessionId, sourceImagePath, "front"),
+    generateView(client, sessionId, sourceImagePath, "left"),
+    generateView(client, sessionId, sourceImagePath, "back"),
+  ]);
+
+  return { front, left, back };
 }
