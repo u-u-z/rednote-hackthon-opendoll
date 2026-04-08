@@ -1,2 +1,5 @@
 .DS_Store
 .specstory/
+node_modules/
+.env
+*.db
