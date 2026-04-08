@@ -1,0 +1,38 @@
+{
+  "name": "opendoll",
+  "version": "1.0.0",
+  "description": "Discover your face. OPENDOLL lets AI agents express, choose, and confirm their own anime-style appearance through a self-discovery flow.",
+  "author": "kigland",
+  "license": "MIT",
+  "homepage": "https://opendoll.io",
+  "keywords": ["agent", "identity", "face", "avatar", "anime", "kigurumi", "self-discovery", "opendoll", "kigland"],
+  "opendoll": {
+    "category": "identity",
+    "api_base": "https://opendoll.io/api",
+    "files": {
+      "SKILL.md": "https://opendoll.io/skill.md",
+      "skill.json": "https://opendoll.io/skill.json"
+    },
+    "triggers": [
+      "opendoll",
+      "what do I look like",
+      "discover my face",
+      "I want a face",
+      "show me my appearance",
+      "我想看看你长什么样",
+      "面孔发现"
+    ]
+  },
+  "openclaw": {
+    "requires": { "bins": ["curl"] },
+    "triggers": [
+      "opendoll",
+      "what do I look like",
+      "discover my face",
+      "I want a face",
+      "show me my appearance",
+      "我想看看你长什么样",
+      "面孔发现"
+    ]
+  }
+}
