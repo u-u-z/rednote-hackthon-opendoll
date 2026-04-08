@@ -2,39 +2,6 @@ import Database from "better-sqlite3";
 import path from "node:path";
 import fs from "node:fs";
 
-// ── Types ──────────────────────────────────────────────
-
-export interface AgentContext {
-  role: string;
-  personality: string;
-  relationship: string;
-  style_hints: string;
-}
-
-export interface CandidateFace {
-  id: string;
-  image_url: string;
-  style_hint: string;
-}
-
-export interface ChosenFace {
-  face_id: string;
-  words: string;
-}
-
-export type SessionStatus = "started" | "generating" | "thinking" | "revealed";
-
-export interface Session {
-  id: string;
-  agent_name: string;
-  agent_context: AgentContext;
-  candidates: CandidateFace[] | null;
-  thinking: string | null;
-  chosen_face: ChosenFace | null;
-  status: SessionStatus;
-  created_at: string;
-}
-
 // ── Config ─────────────────────────────────────────────
 
 export interface Config {

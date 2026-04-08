@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { streamSSE } from "hono/streaming";
 import { generateCandidates } from "../../../lib/gemini.js";
 import { streamThinking } from "../../../lib/llm.js";
+import type { CreateSessionReq, CreateSessionResp, FaceResp } from "../../../mod/apimod/index.js";
 import * as dao from "../dao/index.js";
 
 export function sessionRoutes(): Hono {
@@ -9,22 +10,14 @@ export function sessionRoutes(): Hono {
 
   // POST / — 创建会话
   app.post("/", async (c) => {
-    const body = await c.req.json<{
-      agent_name: string;
-      agent_context: {
-        role: string;
-        personality: string;
-        relationship: string;
-        style_hints: string;
-      };
-    }>();
+    const body = await c.req.json<CreateSessionReq>();
 
     if (!body.agent_name || !body.agent_context) {
       return c.json({ error: "agent_name and agent_context required" }, 400);
     }
 
     const session = dao.createSession(body.agent_name, body.agent_context);
-    return c.json({ session_id: session.id }, 201);
+    return c.json({ session_id: session.id } satisfies CreateSessionResp, 201);
   });
 
   // POST /:id/generate — 生成候选面孔
@@ -122,7 +115,7 @@ export function sessionRoutes(): Hono {
       face_image: face?.image_url ?? null,
       agent_words: session.chosen_face.words,
       context: `${session.agent_context.role} · ${session.agent_context.personality}`,
-    });
+    } satisfies FaceResp);
   });
 
   return app;

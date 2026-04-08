@@ -1,5 +1,6 @@
 import OpenAI from "openai";
-import { cfg, type AgentContext, type CandidateFace } from "../shared/index.js";
+import { cfg } from "../shared/index.js";
+import type { AgentContext, CandidateFace } from "../mod/apimod/index.js";
 
 function buildPrompt(
   name: string,

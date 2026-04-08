@@ -1,7 +1,8 @@
 import { GoogleGenAI } from "@google/genai";
 import fs from "node:fs";
 import path from "node:path";
-import { cfg, type CandidateFace } from "../shared/index.js";
+import { cfg } from "../shared/index.js";
+import type { CandidateFace } from "../mod/apimod/index.js";
 
 const DIRECTIONS = [
   { label: "锐利 / 力量感", en: "sharp, powerful, battle-ready" },
