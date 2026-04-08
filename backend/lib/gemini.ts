@@ -1,8 +1,8 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, type Content } from "@google/genai";
 import fs from "node:fs";
 import path from "node:path";
 import { cfg } from "../shared/index.js";
-import type { CandidateFace } from "../mod/apimod/index.js";
+import type { CandidateFace, SelfImpression } from "../mod/apimod/index.js";
 
 const DIRECTIONS = [
   { label: "锐利 / 力量感", en: "sharp, powerful, battle-ready" },
@@ -54,10 +54,49 @@ Direction ${n} of 4: ${direction.label}
 Negative: generic face, realistic, 3D, blurry, body visible, clothing visible.`;
 }
 
+function buildReferencePrompt(
+  name: string,
+  personality: string,
+  description: string | undefined,
+  direction: (typeof DIRECTIONS)[number],
+  n: number,
+): string {
+  const descBlock = description
+    ? `\nClient-provided appearance description: ${description}`
+    : "";
+
+  return `You are given a reference photo of a person.
+Your task is to create an anime-style head-only portrait that captures
+this person's key facial features (face shape, hairstyle, eye characteristics,
+distinguishing features).
+This is for kigurumi/mask design reference.
+
+[POSE NORMALIZATION — CRITICAL]
+Regardless of the pose, angle, or framing in the reference photo,
+you MUST output a FRONT-FACING, straight-on head portrait.
+Crop tightly to head and hair only — nothing below the jaw/neck.
+Background: pure white (#FFFFFF), no shadows.
+
+[STYLE CONVERSION — CRITICAL]
+Convert to clean 2D anime style (Genshin Impact aesthetic).
+Preserve the person's distinctive features but stylize them into anime form.
+
+[CHARACTER CONTEXT]
+Agent: ${name}
+Personality: ${personality}${descBlock}
+Visual direction: ${direction.en}
+
+[VARIATION — MUST]
+Direction ${n} of 4: ${direction.label}
+
+Negative: generic face, realistic output, 3D, blurry, body visible, clothing visible.`;
+}
+
 export async function generateCandidates(
   sessionId: string,
   agentName: string,
   personality: string,
+  selfImpression?: SelfImpression,
 ): Promise<CandidateFace[]> {
   if (isPlaceholderSecret(cfg().geminiApiKey)) {
     throw new Error("GEMINI_API_KEY is not configured");
@@ -68,13 +107,44 @@ export async function generateCandidates(
     httpOptions: { baseUrl: cfg().geminiBaseUrl },
   });
 
+  const hasRefImage = !!selfImpression?.reference_image;
+  const extraPersonality = selfImpression?.description
+    ? `${personality}, ${selfImpression.description}`
+    : personality;
+
   const tasks = DIRECTIONS.map(async (dir, i) => {
     const faceId = `face_${i + 1}`;
-    const prompt = buildPrompt(agentName, personality, dir, i + 1);
+
+    let contents: string | Content[];
+    if (hasRefImage) {
+      const prompt = buildReferencePrompt(
+        agentName,
+        personality,
+        selfImpression!.description,
+        dir,
+        i + 1,
+      );
+      contents = [
+        {
+          role: "user" as const,
+          parts: [
+            { text: prompt },
+            {
+              inlineData: {
+                mimeType: "image/png",
+                data: selfImpression!.reference_image!,
+              },
+            },
+          ],
+        },
+      ];
+    } else {
+      contents = buildPrompt(agentName, extraPersonality, dir, i + 1);
+    }
 
     const response = await client.models.generateContent({
       model: cfg().geminiImageModel,
-      contents: prompt,
+      contents,
     });
 
     const parts = response.candidates?.[0]?.content?.parts;

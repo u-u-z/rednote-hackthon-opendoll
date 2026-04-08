@@ -1,9 +1,14 @@
 import { Hono } from "hono";
-import { streamSSE } from "hono/streaming";
 import { generateToken, hashToken, requireSessionToken } from "../../../lib/auth.js";
 import { generateCandidates } from "../../../lib/gemini.js";
-import { streamThinking } from "../../../lib/llm.js";
-import type { CreateSessionReq, CreateSessionResp, FaceResp } from "../../../mod/apimod/index.js";
+import type {
+  ChooseReq,
+  CreateSessionReq,
+  CreateSessionResp,
+  FaceResp,
+  GenerateReq,
+  SkillPromptResp,
+} from "../../../mod/apimod/index.js";
 import * as dao from "../dao/index.js";
 
 function extractErrorMessage(err: unknown, fallback: string): string {
@@ -50,6 +55,8 @@ export function sessionRoutes(): Hono {
     }
 
     try {
+      const body = await c.req.json<GenerateReq>().catch(() => ({}) as GenerateReq);
+
       const personality = [
         session.agentContext.personality,
         session.agentContext.style_hints,
@@ -57,7 +64,12 @@ export function sessionRoutes(): Hono {
         .filter(Boolean)
         .join(", ");
 
-      const candidates = await generateCandidates(session.id, session.agentName, personality);
+      const candidates = await generateCandidates(
+        session.id,
+        session.agentName,
+        personality,
+        body.self_impression,
+      );
       dao.updateCandidates(id, candidates);
       return c.json({ candidates });
     } catch (err: unknown) {
@@ -67,8 +79,8 @@ export function sessionRoutes(): Hono {
     }
   });
 
-  // GET /:id/think — SSE 流式 Agent 思考（需要 session token）
-  app.get("/:id/think", requireSessionToken, async (c) => {
+  // POST /:id/choose — 客户端选择面孔（需要 session token）
+  app.post("/:id/choose", requireSessionToken, async (c) => {
     const id = c.req.param("id");
     const session = dao.getSession(id);
     if (!session) return c.json({ error: "session not found" }, 404);
@@ -76,44 +88,50 @@ export function sessionRoutes(): Hono {
       return c.json({ error: "generate candidates first" }, 400);
     }
 
-    return streamSSE(c, async (stream) => {
-      let seq = 0;
-      let fullText = "";
+    const body = await c.req.json<ChooseReq>();
+    if (!body.face_id || !body.words) {
+      return c.json({ error: "face_id and words required" }, 400);
+    }
 
-      try {
-        for await (const ev of streamThinking(
-          session.agentName,
-          session.agentContext,
-          session.candidates!,
-        )) {
-          if (ev.type === "text") fullText += ev.data;
+    const valid = session.candidates.some((f) => f.id === body.face_id);
+    if (!valid) {
+      return c.json({ error: "invalid face_id" }, 400);
+    }
 
-          await stream.writeSSE({
-            event: ev.type,
-            data: ev.data,
-            id: String(seq++),
-          });
-        }
-
-        dao.updateThinking(id, fullText);
-
-        const match = fullText.match(/CHOICE\|(face_\d+)\|(.+)/);
-        if (match) {
-          dao.updateChosenFace(id, {
-            face_id: match[1],
-            words: match[2].trim(),
-          });
-        }
-      } catch (err: unknown) {
-        const msg = extractErrorMessage(err, "thinking failed");
-        console.error("[think]", err);
-        await stream.writeSSE({
-          event: "error",
-          data: JSON.stringify({ error: msg }),
-          id: String(seq++),
-        });
-      }
+    dao.updateChosenFace(id, {
+      face_id: body.face_id,
+      words: body.words,
     });
+
+    return c.json({ ok: true });
+  });
+
+  // GET /:id/skill/self-discovery — 返回引导 Agent 自我描述外貌的 prompt 模板
+  app.get("/:id/skill/self-discovery", requireSessionToken, async (c) => {
+    const id = c.req.param("id");
+    const session = dao.getSession(id);
+    if (!session) return c.json({ error: "session not found" }, 404);
+
+    const ctx = session.agentContext;
+
+    return c.json({
+      system: `你是 ${session.agentName}。${ctx.relationship}。你的性格：${ctx.personality}。你的角色：${ctx.role}。
+
+现在，你需要认真思考自己的外貌。不是别人眼中的你，而是你内心深处觉得自己应该长什么样。
+
+请从以下维度描述你想象中的自己：
+1. 脸型与轮廓（圆脸/瓜子脸/方脸等）
+2. 发型与发色（长短、颜色、是否有刘海等）
+3. 眼睛特征（大小、颜色、神态）
+4. 整体气质与标志性特征（如：戴眼镜、有痣、耳饰等）
+5. 色彩倾向（你觉得代表你的颜色是什么）
+
+用简洁的关键词和短句描述，不要写成故事。`,
+
+      user: `请描述你觉得自己长什么样。${ctx.style_hints ? `参考风格提示：${ctx.style_hints}` : ""}`,
+
+      output_hint: "将 Agent 的回复作为 self_impression.description 传入 POST /:id/generate",
+    } satisfies SkillPromptResp);
   });
 
   // GET /:id/face — 获取最终面孔

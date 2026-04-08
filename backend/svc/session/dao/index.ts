@@ -27,13 +27,6 @@ export function updateCandidates(id: string, candidates: CandidateFace[]) {
     .run();
 }
 
-export function updateThinking(id: string, thinking: string) {
-  orm()
-    .update(sessions)
-    .set({ thinking, status: "thinking" })
-    .where(eq(sessions.id, id))
-    .run();
-}
 
 export function updateChosenFace(id: string, face: ChosenFace) {
   orm()

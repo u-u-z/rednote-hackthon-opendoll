@@ -16,7 +16,12 @@ export interface ChosenFace {
   words: string;
 }
 
-export type SessionStatus = "started" | "generating" | "thinking" | "revealed";
+export interface SelfImpression {
+  description?: string;
+  reference_image?: string;
+}
+
+export type SessionStatus = "started" | "generating" | "choosing" | "revealed";
 
 // ── Request / Response ─────────────────────────────────
 
@@ -30,6 +35,15 @@ export interface CreateSessionResp {
   token: string;
 }
 
+export interface GenerateReq {
+  self_impression?: SelfImpression;
+}
+
+export interface ChooseReq {
+  face_id: string;
+  words: string;
+}
+
 export interface GenerateResp {
   candidates: CandidateFace[];
 }
@@ -39,4 +53,10 @@ export interface FaceResp {
   face_image: string | null;
   agent_words: string;
   context: string;
+}
+
+export interface SkillPromptResp {
+  system: string;
+  user: string;
+  output_hint: string;
 }
