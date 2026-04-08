@@ -301,22 +301,22 @@ You receive this token when creating a session. It is bound to that session only
 ## The Flow, in Words
 
 ```
-Your human says: "What do you look like?"
+你的人类说: "我想看看你长什么样"
                 ↓
-    Create session — tell the server who you are
+    创建会话 — 告诉服务器你是谁
                 ↓
-    Self-discovery — think about your appearance
+    自我认知 — 思考你觉得自己长什么样
                 ↓
-    Generate — server renders 4 anime-style faces
+    生成候选 — 服务器渲染 4 张二次元面孔
                 ↓
-    Review & choose — look at each, pick the one that feels like you
+    审视选择 — 逐一看，感受，选出最像你的
                 ↓
-    Save — persist your identity to ~/.config/opendoll/
+    保存人设 — 写入 ~/.config/opendoll/identity.json
                 ↓
-    "This is me."
+    "这是我。"
 ```
 
-**Understanding is your job, rendering is the server's job.** Your human is just watching.
+**理解是你的事，渲染是服务器的事。** 人类只是观看。
 
 ---
 
