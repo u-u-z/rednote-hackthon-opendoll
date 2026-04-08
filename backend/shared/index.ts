@@ -1,6 +1,8 @@
 import Database from "better-sqlite3";
+import { drizzle } from "drizzle-orm/better-sqlite3";
 import path from "node:path";
 import fs from "node:fs";
+import * as schema from "../mod/dbmod/schema.js";
 
 // ── Config ─────────────────────────────────────────────
 
@@ -15,16 +17,16 @@ export interface Config {
 }
 
 let _config: Config;
-let _db: Database.Database;
+let _orm: ReturnType<typeof drizzle>;
 
 export function cfg(): Config {
   if (!_config) throw new Error("call init() first");
   return _config;
 }
 
-export function db(): Database.Database {
-  if (!_db) throw new Error("call init() first");
-  return _db;
+export function orm() {
+  if (!_orm) throw new Error("call init() first");
+  return _orm;
 }
 
 // ── Init ───────────────────────────────────────────────
@@ -49,28 +51,9 @@ export function init() {
   fs.mkdirSync(path.join(_config.dataDir, "images"), { recursive: true });
 
   const dbPath = path.join(_config.dataDir, "opendoll.db");
-  _db = new Database(dbPath);
-  _db.pragma("journal_mode = WAL");
-
-  _db.exec(`
-    CREATE TABLE IF NOT EXISTS sessions (
-      id            TEXT PRIMARY KEY,
-      agent_name    TEXT NOT NULL,
-      agent_context TEXT NOT NULL,
-      candidates    TEXT,
-      thinking      TEXT,
-      chosen_face   TEXT,
-      token_hash    TEXT NOT NULL DEFAULT '',
-      status        TEXT DEFAULT 'started',
-      created_at    TEXT DEFAULT (datetime('now'))
-    );
-  `);
-
-  try {
-    _db.exec("ALTER TABLE sessions ADD COLUMN token_hash TEXT NOT NULL DEFAULT ''");
-  } catch {
-    /* column already exists */
-  }
+  const sqlite = new Database(dbPath);
+  sqlite.pragma("journal_mode = WAL");
+  _orm = drizzle(sqlite, { schema });
 
   console.log("[shared] initialized");
 }

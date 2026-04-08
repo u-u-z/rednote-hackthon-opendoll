@@ -1,6 +1,8 @@
 import crypto from "node:crypto";
+import { eq } from "drizzle-orm";
 import type { MiddlewareHandler } from "hono";
-import { db } from "../shared/index.js";
+import { orm } from "../shared/index.js";
+import { sessions } from "../mod/dbmod/schema.js";
 
 const TOKEN_PREFIX = "odtk_";
 const TOKEN_BYTES = 32;
@@ -30,9 +32,11 @@ export const requireSessionToken: MiddlewareHandler = async (c, next) => {
   }
 
   const hash = hashToken(token);
-  const row = db()
-    .prepare("SELECT id FROM sessions WHERE token_hash = ?")
-    .get(hash) as { id: string } | undefined;
+  const row = orm()
+    .select({ id: sessions.id })
+    .from(sessions)
+    .where(eq(sessions.tokenHash, hash))
+    .get();
 
   if (!row) {
     return c.json({ error: "invalid token" }, 401);

@@ -5,13 +5,17 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch cmd/main/main.ts",
-    "start": "tsx cmd/main/main.ts"
+    "start": "tsx cmd/main/main.ts",
+    "db:push": "drizzle-kit push",
+    "db:generate": "drizzle-kit generate",
+    "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
     "@google/genai": "^1.48.0",
     "@hono/node-server": "^1.19.13",
     "better-sqlite3": "^12.8.0",
     "dotenv": "^17.4.1",
+    "drizzle-orm": "^0.45.2",
     "hono": "^4.12.12",
     "nanoid": "^5.1.7",
     "openai": "^6.33.0"
@@ -26,6 +30,7 @@
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^25.5.2",
+    "drizzle-kit": "^0.31.10",
     "tsx": "^4.21.0",
     "typescript": "^6.0.2"
   }

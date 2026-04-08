@@ -34,13 +34,13 @@ export function sessionRoutes(): Hono {
 
     try {
       const personality = [
-        session.agent_context.personality,
-        session.agent_context.style_hints,
+        session.agentContext.personality,
+        session.agentContext.style_hints,
       ]
         .filter(Boolean)
         .join(", ");
 
-      const candidates = await generateCandidates(session.id, session.agent_name, personality);
+      const candidates = await generateCandidates(session.id, session.agentName, personality);
       dao.updateCandidates(id, candidates);
       return c.json({ candidates });
     } catch (err: unknown) {
@@ -65,8 +65,8 @@ export function sessionRoutes(): Hono {
 
       try {
         for await (const ev of streamThinking(
-          session.agent_name,
-          session.agent_context,
+          session.agentName,
+          session.agentContext,
           session.candidates!,
         )) {
           if (ev.type === "text") fullText += ev.data;
@@ -104,19 +104,19 @@ export function sessionRoutes(): Hono {
     const id = c.req.param("id");
     const session = dao.getSession(id);
     if (!session) return c.json({ error: "session not found" }, 404);
-    if (!session.chosen_face) {
+    if (!session.chosenFace) {
       return c.json({ error: "face not chosen yet" }, 400);
     }
 
     const face = session.candidates?.find(
-      (f) => f.id === session.chosen_face!.face_id,
+      (f) => f.id === session.chosenFace!.face_id,
     );
 
     return c.json({
-      agent_name: session.agent_name,
+      agent_name: session.agentName,
       face_image: face?.image_url ?? null,
-      agent_words: session.chosen_face.words,
-      context: `${session.agent_context.role} · ${session.agent_context.personality}`,
+      agent_words: session.chosenFace.words,
+      context: `${session.agentContext.role} · ${session.agentContext.personality}`,
     } satisfies FaceResp);
   });
 

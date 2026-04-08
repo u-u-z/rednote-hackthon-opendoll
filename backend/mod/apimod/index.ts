@@ -18,17 +18,6 @@ export interface ChosenFace {
 
 export type SessionStatus = "started" | "generating" | "thinking" | "revealed";
 
-export interface Session {
-  id: string;
-  agent_name: string;
-  agent_context: AgentContext;
-  candidates: CandidateFace[] | null;
-  thinking: string | null;
-  chosen_face: ChosenFace | null;
-  status: SessionStatus;
-  created_at: string;
-}
-
 // ── Request / Response ─────────────────────────────────
 
 export interface CreateSessionReq {

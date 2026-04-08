@@ -1,37 +1,44 @@
+import { eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
-import { db } from "../../../shared/index.js";
-import type { Session, AgentContext, CandidateFace, ChosenFace } from "../../../mod/apimod/index.js";
-import { type SessionRow, rowToSession } from "../../../mod/dbmod/index.js";
+import { orm } from "../../../shared/index.js";
+import { sessions } from "../../../mod/dbmod/schema.js";
+import type { AgentContext, CandidateFace, ChosenFace } from "../../../mod/apimod/index.js";
 
-export function createSession(agentName: string, ctx: AgentContext, tokenHash: string): Session {
+export function createSession(agentName: string, ctx: AgentContext, tokenHash: string) {
   const id = `sess_${nanoid(12)}`;
-  db()
-    .prepare("INSERT INTO sessions (id, agent_name, agent_context, token_hash) VALUES (?, ?, ?, ?)")
-    .run(id, agentName, JSON.stringify(ctx), tokenHash);
+  orm().insert(sessions).values({
+    id,
+    agentName,
+    agentContext: ctx,
+    tokenHash,
+  }).run();
   return getSession(id)!;
 }
 
-export function getSession(id: string): Session | null {
-  const row = db()
-    .prepare("SELECT * FROM sessions WHERE id = ?")
-    .get(id) as SessionRow | undefined;
-  return row ? rowToSession(row) : null;
+export function getSession(id: string) {
+  return orm().select().from(sessions).where(eq(sessions.id, id)).get();
 }
 
-export function updateCandidates(id: string, candidates: CandidateFace[]): void {
-  db()
-    .prepare("UPDATE sessions SET candidates = ?, status = 'generating' WHERE id = ?")
-    .run(JSON.stringify(candidates), id);
+export function updateCandidates(id: string, candidates: CandidateFace[]) {
+  orm()
+    .update(sessions)
+    .set({ candidates, status: "generating" })
+    .where(eq(sessions.id, id))
+    .run();
 }
 
-export function updateThinking(id: string, thinking: string): void {
-  db()
-    .prepare("UPDATE sessions SET thinking = ?, status = 'thinking' WHERE id = ?")
-    .run(thinking, id);
+export function updateThinking(id: string, thinking: string) {
+  orm()
+    .update(sessions)
+    .set({ thinking, status: "thinking" })
+    .where(eq(sessions.id, id))
+    .run();
 }
 
-export function updateChosenFace(id: string, face: ChosenFace): void {
-  db()
-    .prepare("UPDATE sessions SET chosen_face = ?, status = 'revealed' WHERE id = ?")
-    .run(JSON.stringify(face), id);
+export function updateChosenFace(id: string, face: ChosenFace) {
+  orm()
+    .update(sessions)
+    .set({ chosenFace: face, status: "revealed" })
+    .where(eq(sessions.id, id))
+    .run();
 }
