@@ -1,6 +1,8 @@
 import { Hono } from "hono";
 import { generateToken, hashToken, requireSessionToken } from "../../../lib/auth.js";
-import { generateCandidates, generateMultiview } from "../../../lib/gemini.js";
+import { generateCandidates } from "../../../lib/gemini.js";
+import { generateMultiview } from "../../../lib/multiview.js";
+import { generateEyesheet } from "../../../lib/eyesheet.js";
 import type {
   ChooseReq,
   CreateOrderReq,
@@ -12,6 +14,7 @@ import type {
   ModelReq,
   ModelResp,
   MultiviewResp,
+  EyesheetResp,
   SkillPromptResp,
 } from "../../../mod/apimod/index.js";
 import * as dao from "../dao/index.js";
@@ -282,6 +285,18 @@ export function sessionRoutes(): Hono {
       console.warn("[order] multiview generation skipped:", err instanceof Error ? err.message : err);
     }
 
+    // Attempt eyesheet generation (best-effort)
+    let eyesheet: EyesheetResp | undefined;
+    try {
+      const faceUrl = face?.image_url;
+      if (faceUrl) {
+        eyesheet = await generateEyesheet(id, faceUrl);
+        console.log(`[order] eyesheet generated for session ${id}`);
+      }
+    } catch (err) {
+      console.warn("[order] eyesheet generation skipped:", err instanceof Error ? err.message : err);
+    }
+
     const order = orderDao.createOrder({
       sessionId: id,
       agentName: session.agentName,
@@ -294,6 +309,7 @@ export function sessionRoutes(): Hono {
       featUuid,
       shapekeys,
       multiview,
+      eyesheet,
       note: body.note,
     });
 

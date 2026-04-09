@@ -223,8 +223,8 @@ export function OrderPage({ orderId }: { orderId: string }) {
               </div>
             </div>
 
-            {/* ── Right column: multiview + 3D viewer ── */}
-            {(order.multiview || order.shapekeys) && (
+            {/* ── Right column: multiview + eyesheet + 3D viewer ── */}
+            {(order.multiview || order.eyesheet || order.shapekeys) && (
               <div className="order-2 lg:flex-1 mt-6 lg:mt-0 flex flex-col gap-4">
                 {/* Multiview images */}
                 {order.multiview && (
@@ -238,6 +238,24 @@ export function OrderPage({ orderId }: { orderId: string }) {
                         />
                         <span className="absolute bottom-0 inset-x-0 text-center text-[9px] tracking-widest uppercase text-muted-foreground/60 bg-background/70 py-0.5">
                           {angle === "front" ? "正面" : angle === "left" ? "左侧" : "背面"}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Eyesheet images */}
+                {order.eyesheet && (
+                  <div className="grid grid-cols-3 gap-2">
+                    {(["eyes", "iris", "eyelash"] as const).map((part) => (
+                      <div key={part} className="relative border border-border overflow-hidden bg-white">
+                        <img
+                          src={order.eyesheet![part]}
+                          alt={part}
+                          className="w-full aspect-square object-contain"
+                        />
+                        <span className="absolute bottom-0 inset-x-0 text-center text-[9px] tracking-widest uppercase text-muted-foreground/60 bg-background/70 py-0.5">
+                          {part === "eyes" ? "眼部" : part === "iris" ? "眼片" : "睫毛"}
                         </span>
                       </div>
                     ))}

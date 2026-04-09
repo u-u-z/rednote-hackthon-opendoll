@@ -8,7 +8,7 @@ import { init, orm } from "../shared/index.js";
 init();
 import { orders } from "../mod/dbmod/schema.js";
 import { eq, isNull, and, isNotNull } from "drizzle-orm";
-import { generateMultiview } from "../lib/gemini.js";
+import { generateMultiview } from "../lib/multiview.js";
 
 async function main() {
   const rows = orm()

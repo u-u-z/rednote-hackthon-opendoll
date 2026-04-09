@@ -21,6 +21,11 @@ export function orderRoutes(): Hono {
       try { parsedMultiview = JSON.parse(order.multiview); } catch { /* ignore */ }
     }
 
+    let parsedEyesheet: { eyes: string; iris: string; eyelash: string } | null = null;
+    if (order.eyesheet) {
+      try { parsedEyesheet = JSON.parse(order.eyesheet); } catch { /* ignore */ }
+    }
+
     return c.json({
       order_id: order.id,
       agent_name: order.agentName,
@@ -34,6 +39,7 @@ export function orderRoutes(): Hono {
       feat_uuid: order.featUuid ?? null,
       shapekeys: parsedShapekeys,
       multiview: parsedMultiview,
+      eyesheet: parsedEyesheet,
       status: order.status,
       note: order.note,
       created_at: order.createdAt,

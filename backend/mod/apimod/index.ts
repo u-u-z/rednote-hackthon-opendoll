@@ -67,6 +67,12 @@ export interface MultiviewResp {
   back: string;
 }
 
+export interface EyesheetResp {
+  eyes: string;
+  iris: string;
+  eyelash: string;
+}
+
 export interface ModelReq {
   size?: number;
 }
@@ -109,6 +115,7 @@ export interface OrderDetailResp {
   feat_uuid: string | null;
   shapekeys: Record<string, number> | null;
   multiview: { front: string; left: string; back: string } | null;
+  eyesheet: { eyes: string; iris: string; eyelash: string } | null;
   status: OrderStatus;
   note: string | null;
   created_at: string;

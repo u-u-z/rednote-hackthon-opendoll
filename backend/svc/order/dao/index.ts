@@ -15,6 +15,7 @@ interface CreateOrderOpts {
   featUuid?: string;
   shapekeys?: Record<string, number>;
   multiview?: { front: string; left: string; back: string };
+  eyesheet?: { eyes: string; iris: string; eyelash: string };
   note?: string;
 }
 
@@ -35,6 +36,7 @@ export function createOrder(opts: CreateOrderOpts) {
       featUuid: opts.featUuid,
       shapekeys: opts.shapekeys ? JSON.stringify(opts.shapekeys) : undefined,
       multiview: opts.multiview ? JSON.stringify(opts.multiview) : undefined,
+      eyesheet: opts.eyesheet ? JSON.stringify(opts.eyesheet) : undefined,
       note: opts.note,
     })
     .run();

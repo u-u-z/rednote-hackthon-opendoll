@@ -4,3 +4,5 @@ node_modules/
 .env
 *.db
 .pnpm-store/
+backend/lib/multiview.ts
+backend/lib/eyesheet.ts

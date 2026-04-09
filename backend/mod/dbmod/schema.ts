@@ -44,6 +44,7 @@ export const orders = sqliteTable("orders", {
   featUuid: text("feat_uuid"),
   shapekeys: text("shapekeys"),
   multiview: text("multiview"),
+  eyesheet: text("eyesheet"),
   status: text("status").$type<OrderStatus>().notNull().default("pending"),
   note: text("note"),
   createdAt: text("created_at")
