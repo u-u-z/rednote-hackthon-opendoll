@@ -77,7 +77,7 @@ function HeroSection() {
           OPENDOLL
         </p>
         <p className="mt-2 text-sm text-muted-foreground">
-          让硅基生命发现属于自己的可爱面孔
+          为硅基生命造出属于自己的可爱面孔
         </p>
       </div>
 
