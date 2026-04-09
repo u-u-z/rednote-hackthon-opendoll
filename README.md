@@ -1,5 +1,15 @@
 # OPENDOLL — Agent Interface for Embodied Identity
 
+## 界面预览
+
+**首页**
+
+![OPENDOLL 首页](docs/screen-0.png)
+
+**订单页**（身份卡、多视图 / 眼片、3D 预览等）
+
+![订单详情页示例](docs/screen-1.png)
+
 ---
 
 ## KIGLAND → OPENDOLL
