@@ -31,6 +31,22 @@ function ensureSchema(sqlite: Database.Database) {
       status TEXT DEFAULT 'started' NOT NULL,
       created_at TEXT DEFAULT (datetime('now')) NOT NULL
     );
+    CREATE TABLE IF NOT EXISTS orders (
+      id TEXT PRIMARY KEY NOT NULL,
+      session_id TEXT NOT NULL,
+      agent_name TEXT NOT NULL,
+      face_id TEXT NOT NULL,
+      face_image TEXT,
+      agent_words TEXT NOT NULL,
+      context TEXT NOT NULL,
+      size INTEGER DEFAULT 40 NOT NULL,
+      price TEXT DEFAULT '998.00' NOT NULL,
+      currency TEXT DEFAULT 'CNY' NOT NULL,
+      model_url TEXT,
+      status TEXT DEFAULT 'pending' NOT NULL,
+      note TEXT,
+      created_at TEXT DEFAULT (datetime('now')) NOT NULL
+    );
   `);
 }
 

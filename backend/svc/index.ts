@@ -5,6 +5,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { cfg } from "../shared/index.js";
+import { orderRoutes } from "./order/handler/index.js";
 import { sessionRoutes } from "./session/handler/index.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -23,6 +24,7 @@ export function createApp(): Hono {
   app.use("/api/*", cors());
 
   app.route("/api/session", sessionRoutes());
+  app.route("/api/order", orderRoutes());
 
   app.get("/api/images/:filename", async (c) => {
     const filename = c.req.param("filename");

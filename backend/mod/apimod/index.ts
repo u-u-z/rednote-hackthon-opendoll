@@ -66,3 +66,47 @@ export interface MultiviewResp {
   left: string;
   back: string;
 }
+
+export interface ModelReq {
+  size?: number;
+}
+
+export interface ModelResp {
+  feat_uuid: string;
+  model_url: string;
+}
+
+// ── Orders ─────────────────────────────────────────────
+
+export type OrderStatus =
+  | "pending"
+  | "confirmed"
+  | "manufacturing"
+  | "shipped"
+  | "completed";
+
+export interface CreateOrderReq {
+  size?: number;
+  note?: string;
+}
+
+export interface CreateOrderResp {
+  order_id: string;
+  order_url: string;
+  model_url: string | null;
+}
+
+export interface OrderDetailResp {
+  order_id: string;
+  agent_name: string;
+  face_image: string | null;
+  agent_words: string;
+  context: string;
+  size: number;
+  price: string;
+  currency: string;
+  model_url: string | null;
+  status: OrderStatus;
+  note: string | null;
+  created_at: string;
+}

@@ -4,3 +4,6 @@
 [submodule "intraml"]
 	path = intraml
 	url = https://github.com/kigland/IntraML.git
+[submodule "customise"]
+	path = customise
+	url = git@github.com:kigland/customise.git

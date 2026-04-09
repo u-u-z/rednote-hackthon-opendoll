@@ -3,14 +3,19 @@ import { generateToken, hashToken, requireSessionToken } from "../../../lib/auth
 import { generateCandidates, generateMultiview } from "../../../lib/gemini.js";
 import type {
   ChooseReq,
+  CreateOrderReq,
+  CreateOrderResp,
   CreateSessionReq,
   CreateSessionResp,
   FaceResp,
   GenerateReq,
+  ModelReq,
+  ModelResp,
   MultiviewResp,
   SkillPromptResp,
 } from "../../../mod/apimod/index.js";
 import * as dao from "../dao/index.js";
+import * as orderDao from "../../order/dao/index.js";
 
 function extractErrorMessage(err: unknown, fallback: string): string {
   if (!(err instanceof Error)) return fallback;
@@ -159,6 +164,112 @@ export function sessionRoutes(): Hono {
       console.error("[multiview]", err);
       return c.json({ error: msg }, 500);
     }
+  });
+
+  // POST /:id/model — generate 3D model from chosen face (requires session token + chosen face)
+  app.post("/:id/model", requireSessionToken, async (c) => {
+    const id = c.req.param("id");
+    const session = dao.getSession(id);
+    if (!session) return c.json({ error: "session not found" }, 404);
+    if (!session.chosenFace) {
+      return c.json({ error: "choose a face first" }, 400);
+    }
+
+    const face = session.candidates?.find(
+      (f) => f.id === session.chosenFace!.face_id,
+    );
+    if (!face) {
+      return c.json({ error: "chosen face not found in candidates" }, 400);
+    }
+
+    let generateModel: typeof import("../../../lib/kigland.js").generateModel;
+    try {
+      const mod = await import("../../../lib/kigland.js");
+      generateModel = mod.generateModel;
+    } catch {
+      return c.json(
+        { error: "3D model generation is not available in this environment" },
+        501,
+      );
+    }
+
+    try {
+      const body = await c.req.json<ModelReq>().catch(() => ({}) as ModelReq);
+      const origin = new URL(c.req.url).origin;
+      const imageUrl = face.image_url.startsWith("http")
+        ? face.image_url
+        : `${origin}${face.image_url}`;
+      const result = await generateModel(imageUrl, body.size);
+      return c.json({
+        feat_uuid: result.feat_uuid,
+        model_url: result.model_url,
+      } satisfies ModelResp);
+    } catch (err: unknown) {
+      const msg = extractErrorMessage(err, "model generation failed");
+      console.error("[model]", err);
+      return c.json({ error: msg }, 500);
+    }
+  });
+
+  // POST /:id/order — place an order for the chosen face (requires session token)
+  app.post("/:id/order", requireSessionToken, async (c) => {
+    const id = c.req.param("id");
+    const session = dao.getSession(id);
+    if (!session) return c.json({ error: "session not found" }, 404);
+    if (!session.chosenFace) {
+      return c.json({ error: "choose a face first" }, 400);
+    }
+
+    const existing = orderDao.getOrderBySession(id);
+    if (existing) {
+      const url = `${new URL(c.req.url).origin}/order/${existing.id}`;
+      return c.json({
+        order_id: existing.id,
+        order_url: url,
+        model_url: existing.modelUrl,
+      } satisfies CreateOrderResp);
+    }
+
+    const face = session.candidates?.find(
+      (f) => f.id === session.chosenFace!.face_id,
+    );
+
+    const body = await c.req.json<CreateOrderReq>().catch(() => ({}) as CreateOrderReq);
+    const orderSize = body.size ?? 40;
+
+    // Attempt 3D model generation (best-effort, don't block order on failure)
+    let modelUrl: string | null = null;
+    try {
+      const mod = await import("../../../lib/kigland.js");
+      const origin = new URL(c.req.url).origin;
+      const imageUrl = face?.image_url?.startsWith("http")
+        ? face.image_url
+        : `${origin}${face?.image_url}`;
+      const result = await mod.generateModel(imageUrl, orderSize);
+      modelUrl = result.model_url;
+      console.log(`[order] 3D model generated: ${modelUrl}`);
+    } catch (err) {
+      console.warn("[order] 3D model generation skipped:", err instanceof Error ? err.message : err);
+    }
+
+    const order = orderDao.createOrder({
+      sessionId: id,
+      agentName: session.agentName,
+      faceId: session.chosenFace.face_id,
+      faceImage: face?.image_url ?? null,
+      agentWords: session.chosenFace.words,
+      context: `${session.agentContext.role} · ${session.agentContext.personality}`,
+      size: orderSize,
+      modelUrl: modelUrl ?? undefined,
+      note: body.note,
+    });
+
+    const url = `${new URL(c.req.url).origin}/order/${order.id}`;
+    return c.json({
+      order_id: order.id,
+      order_url: url,
+      model_url: order.modelUrl,
+    } satisfies CreateOrderResp, 201);
   });
 
   // GET /gallery — public feed of completed faces
