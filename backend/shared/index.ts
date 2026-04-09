@@ -18,7 +18,6 @@ let _config: Config;
 let _orm: ReturnType<typeof drizzle>;
 
 function ensureSchema(sqlite: Database.Database) {
-  // Keep local dev bootable even before drizzle has been run once.
   sqlite.exec(`
     CREATE TABLE IF NOT EXISTS sessions (
       id TEXT PRIMARY KEY NOT NULL,
@@ -48,6 +47,15 @@ function ensureSchema(sqlite: Database.Database) {
       created_at TEXT DEFAULT (datetime('now')) NOT NULL
     );
   `);
+
+  // Backfill columns added after initial schema
+  const addColumnIfMissing = (table: string, col: string, def: string) => {
+    const cols = sqlite.pragma(`table_info(${table})`) as { name: string }[];
+    if (!cols.some((c) => c.name === col)) {
+      sqlite.exec(`ALTER TABLE ${table} ADD COLUMN ${col} ${def}`);
+    }
+  };
+  addColumnIfMissing("orders", "model_url", "TEXT");
 }
 
 export function cfg(): Config {

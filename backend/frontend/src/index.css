@@ -134,32 +134,28 @@ body {
   animation: shimmer 12s infinite linear;
 }
 
-.masonry {
-  columns: 2;
-  column-gap: 0.75rem;
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
 }
 
 @media (min-width: 640px) {
-  .masonry {
-    columns: 3;
+  .gallery-grid {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
 @media (min-width: 1024px) {
-  .masonry {
-    columns: 4;
+  .gallery-grid {
+    grid-template-columns: repeat(4, 1fr);
   }
 }
 
 @media (min-width: 1280px) {
-  .masonry {
-    columns: 5;
+  .gallery-grid {
+    grid-template-columns: repeat(5, 1fr);
   }
-}
-
-.masonry > * {
-  break-inside: avoid;
-  margin-bottom: 0.75rem;
 }
 
 /* Identity card */

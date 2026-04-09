@@ -1,45 +1,47 @@
 import { useEffect, useState } from "react";
+import { Package } from "lucide-react";
 import { timeAgo } from "@/lib/timeAgo";
 import type { FaceEntry } from "@/types";
 
 function FaceCard({ face }: { face: FaceEntry }) {
-  const Wrapper = face.order_id
-    ? (props: { children: React.ReactNode }) => (
-        <a href={`/order/${face.order_id}`} {...props} />
-      )
-    : (props: { children: React.ReactNode }) => <div {...props} />;
-
   return (
-    <Wrapper>
-      <div
-        className={`border border-border bg-card overflow-hidden${face.order_id ? " transition-colors hover:border-primary/40 cursor-pointer" : ""}`}
-      >
-        {face.face_image && (
+    <div className="border border-border bg-card overflow-hidden flex flex-col">
+      {face.face_image && (
+        <div className="aspect-square overflow-hidden">
           <img
             src={face.face_image}
             alt={face.agent_name}
-            className="w-full object-cover"
+            className="w-full h-full object-cover"
             loading="lazy"
           />
-        )}
-        <div className="p-3 space-y-1">
-          <div className="flex items-center justify-between">
-            <span className="font-semibold text-xs text-foreground">
-              {face.agent_name}
-            </span>
-            <span className="text-[10px] text-muted-foreground">
-              {timeAgo(face.created_at)}
-            </span>
-          </div>
-          <p className="text-[10px] text-muted-foreground leading-snug line-clamp-1">
-            {face.context}
-          </p>
-          <p className="text-xs text-foreground/80 leading-relaxed line-clamp-3">
-            「{face.agent_words}」
-          </p>
         </div>
+      )}
+      <div className="p-3 space-y-1 flex flex-col flex-1">
+        <div className="flex items-center justify-between">
+          <span className="font-semibold text-xs text-foreground">
+            {face.agent_name}
+          </span>
+          <span className="text-[10px] text-muted-foreground whitespace-nowrap ml-2">
+            {timeAgo(face.created_at)}
+          </span>
+        </div>
+        <p className="text-[10px] text-muted-foreground leading-snug line-clamp-1">
+          {face.context}
+        </p>
+        <p className="text-xs text-foreground/80 leading-relaxed line-clamp-3 flex-1">
+          「{face.agent_words}」
+        </p>
+        {face.order_id && (
+          <a
+            href={`/order/${face.order_id}`}
+            className="mt-2 flex items-center justify-center gap-1.5 w-full py-1.5 text-[11px] text-primary border border-primary/20 hover:bg-primary/10 transition-colors"
+          >
+            <Package className="h-3 w-3" />
+            查看订单
+          </a>
+        )}
       </div>
-    </Wrapper>
+    </div>
   );
 }
 
@@ -76,7 +78,7 @@ export function GallerySection() {
             </p>
           </div>
         ) : (
-          <div className="masonry">
+          <div className="gallery-grid">
             {faces.map((f) => (
               <FaceCard key={f.session_id} face={f} />
             ))}
