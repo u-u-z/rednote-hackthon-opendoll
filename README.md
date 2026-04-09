@@ -139,3 +139,15 @@ OPENDOLL 的输出直接对接 KIGLAND 现有的制造能力。数字面孔到�
 
 **Q: 壁垒在哪？**
 > 两层。第一层是制造端——从数字面孔到实体产品的全链路，涉及参数化建模、开模、涂装，不是纯软件团队能复制的。第二层是社区端——我们在二次元圈子里有十年积累，理解"角色"对这个群体意味着什么，这决定了产品审美和体验的每一个细节。
+
+---
+
+## Disclaimer
+
+This project is a **demo / competition entry** and is not intended for production use at this stage. Please note:
+
+- **No security features** are implemented. Authentication, authorization, rate limiting, and other security measures are intentionally omitted in this demo.
+- **Core API functionality is hidden.** The proprietary rendering and generation APIs are not included in this repository. If you need access, please contact the author directly.
+- This project was built as a **competition submission**. It will be gradually improved and refined over time.
+
+For inquiries, collaboration, or API access, please reach out to the author.
