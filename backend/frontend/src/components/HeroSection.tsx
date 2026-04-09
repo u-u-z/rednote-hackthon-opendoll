@@ -124,13 +124,12 @@ function AgentTab() {
 const PIPELINE_STEPS: {
   icon: typeof Sparkles;
   label: string;
-  highlight: boolean;
 }[] = [
-  { icon: Sparkles, label: "面孔发现", highlight: false },
-  { icon: Image, label: "生成候选", highlight: false },
-  { icon: Heart, label: "选择身份", highlight: false },
-  { icon: Box, label: "3D 建模", highlight: true },
-  { icon: Download, label: "下载 STL", highlight: true },
+  { icon: Sparkles, label: "面孔发现" },
+  { icon: Image, label: "生成候选" },
+  { icon: Heart, label: "选择身份" },
+  { icon: Box, label: "3D 建模" },
+  { icon: Download, label: "下载 STL" },
 ];
 
 export function HeroSection() {
@@ -168,22 +167,8 @@ export function HeroSection() {
             {PIPELINE_STEPS.map((step, i, arr) => (
               <div key={step.label} className="flex items-center gap-1">
                 <div className="flex flex-col items-center gap-1.5">
-                  <step.icon
-                    className={cn(
-                      "h-4 w-4",
-                      step.highlight
-                        ? "text-primary"
-                        : "text-muted-foreground/70"
-                    )}
-                  />
-                  <span
-                    className={cn(
-                      "text-[10px] leading-none whitespace-nowrap",
-                      step.highlight
-                        ? "text-primary font-medium"
-                        : "text-muted-foreground/70"
-                    )}
-                  >
+                  <step.icon className="h-4 w-4 text-muted-foreground/70" />
+                  <span className="text-[10px] leading-none whitespace-nowrap text-muted-foreground/70">
                     {step.label}
                   </span>
                 </div>
