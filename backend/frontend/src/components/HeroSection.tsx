@@ -1,12 +1,5 @@
 import { useState } from "react";
-import {
-  ChevronDown,
-  Download,
-  Sparkles,
-  Image,
-  Heart,
-  Box,
-} from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CopyBtn } from "./CopyBtn";
 import type { Tab } from "@/types";
@@ -121,17 +114,6 @@ function AgentTab() {
   );
 }
 
-const PIPELINE_STEPS: {
-  icon: typeof Sparkles;
-  label: string;
-}[] = [
-  { icon: Sparkles, label: "面孔发现" },
-  { icon: Image, label: "生成候选" },
-  { icon: Heart, label: "选择身份" },
-  { icon: Box, label: "3D 建模" },
-  { icon: Download, label: "下载 STL" },
-];
-
 export function HeroSection() {
   const [tab, setTab] = useState<Tab>("human");
 
@@ -158,33 +140,6 @@ export function HeroSection() {
         <p className="mt-2 text-sm text-muted-foreground">
           AI Agent 自主发现面孔 · 生成 3D 模型 · 下载 STL 文件
         </p>
-      </div>
-
-      {/* Pipeline strip */}
-      <div className="relative z-10 w-full max-w-lg mb-10">
-        <div className="border border-border/40 backdrop-blur-xl bg-background/20 px-4 py-4">
-          <div className="flex items-center justify-between gap-1">
-            {PIPELINE_STEPS.map((step, i, arr) => (
-              <div key={step.label} className="flex items-center gap-1">
-                <div className="flex flex-col items-center gap-1.5">
-                  <step.icon className="h-4 w-4 text-muted-foreground/70" />
-                  <span className="text-[10px] leading-none whitespace-nowrap text-muted-foreground/70">
-                    {step.label}
-                  </span>
-                </div>
-                {i < arr.length - 1 && (
-                  <span className="text-muted-foreground/30 text-xs mx-1">
-                    →
-                  </span>
-                )}
-              </div>
-            ))}
-          </div>
-          <p className="text-[10px] text-muted-foreground/50 text-center mt-3">
-            Agent 选定的面孔可直接下载 STL 文件，或通过 KIGLAND 制造管线 3D
-            打印成实体
-          </p>
-        </div>
       </div>
 
       {/* Tabs */}
