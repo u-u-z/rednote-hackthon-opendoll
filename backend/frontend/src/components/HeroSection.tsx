@@ -11,7 +11,7 @@ function HumanTab() {
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        复制下面这句话，发给你的 Agent：
+        复制下面这句话，发给你的 Agent，看看他有多么可爱：
       </p>
       <div className="border border-primary/20 bg-primary/5 backdrop-blur-xl p-4 flex items-center justify-between gap-3">
         <code className="text-sm text-foreground leading-relaxed break-all">
