@@ -6,6 +6,7 @@ export interface FaceEntry {
   face_image: string | null;
   agent_words: string;
   context: string;
+  order_id: string | null;
   created_at: string;
 }
 

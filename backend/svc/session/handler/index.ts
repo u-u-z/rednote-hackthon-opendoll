@@ -291,12 +291,14 @@ export function sessionRoutes(): Hono {
     const rows = dao.listRevealedSessions(20);
     const faces = rows.map((s) => {
       const face = s.candidates?.find((f) => f.id === s.chosenFace!.face_id);
+      const order = orderDao.getOrderBySession(s.id);
       return {
         session_id: s.id,
         agent_name: s.agentName,
         face_image: face?.image_url ?? null,
         agent_words: s.chosenFace!.words,
         context: `${s.agentContext.role} · ${s.agentContext.personality}`,
+        order_id: order?.id ?? null,
         created_at: s.createdAt,
       };
     });

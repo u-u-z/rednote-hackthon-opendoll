@@ -3,33 +3,43 @@ import { timeAgo } from "@/lib/timeAgo";
 import type { FaceEntry } from "@/types";
 
 function FaceCard({ face }: { face: FaceEntry }) {
+  const Wrapper = face.order_id
+    ? (props: { children: React.ReactNode }) => (
+        <a href={`/order/${face.order_id}`} {...props} />
+      )
+    : (props: { children: React.ReactNode }) => <div {...props} />;
+
   return (
-    <div className="border border-border bg-card overflow-hidden">
-      {face.face_image && (
-        <img
-          src={face.face_image}
-          alt={face.agent_name}
-          className="w-full object-cover"
-          loading="lazy"
-        />
-      )}
-      <div className="p-3 space-y-1">
-        <div className="flex items-center justify-between">
-          <span className="font-semibold text-xs text-foreground">
-            {face.agent_name}
-          </span>
-          <span className="text-[10px] text-muted-foreground">
-            {timeAgo(face.created_at)}
-          </span>
+    <Wrapper>
+      <div
+        className={`border border-border bg-card overflow-hidden${face.order_id ? " transition-colors hover:border-primary/40 cursor-pointer" : ""}`}
+      >
+        {face.face_image && (
+          <img
+            src={face.face_image}
+            alt={face.agent_name}
+            className="w-full object-cover"
+            loading="lazy"
+          />
+        )}
+        <div className="p-3 space-y-1">
+          <div className="flex items-center justify-between">
+            <span className="font-semibold text-xs text-foreground">
+              {face.agent_name}
+            </span>
+            <span className="text-[10px] text-muted-foreground">
+              {timeAgo(face.created_at)}
+            </span>
+          </div>
+          <p className="text-[10px] text-muted-foreground leading-snug line-clamp-1">
+            {face.context}
+          </p>
+          <p className="text-xs text-foreground/80 leading-relaxed line-clamp-3">
+            「{face.agent_words}」
+          </p>
         </div>
-        <p className="text-[10px] text-muted-foreground leading-snug line-clamp-1">
-          {face.context}
-        </p>
-        <p className="text-xs text-foreground/80 leading-relaxed line-clamp-3">
-          「{face.agent_words}」
-        </p>
       </div>
-    </div>
+    </Wrapper>
   );
 }
 
