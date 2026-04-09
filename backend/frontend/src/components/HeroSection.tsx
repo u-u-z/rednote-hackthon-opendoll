@@ -138,7 +138,7 @@ export function HeroSection() {
           OPENDOLL
         </p>
         <p className="mt-2 text-sm text-muted-foreground">
-          AI Agent 自主发现面孔 · 生成 3D 模型 · 下载 STL 文件
+          为每个硅基生命创造属于自己的可爱面孔
         </p>
       </div>
 
