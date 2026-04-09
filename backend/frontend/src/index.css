@@ -43,6 +43,8 @@ body {
   --color-dark-border: #333333;
   --color-dark-text: #E5E5E5;
   --color-dark-text-secondary: #A0A0A0;
+  --color-agent: #22D3EE;
+  --color-agent-dark: #06B6D4;
 }
 
 :root {
@@ -130,4 +132,32 @@ body {
 
 .animate-shimmer {
   animation: shimmer 12s infinite linear;
+}
+
+.masonry {
+  columns: 2;
+  column-gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .masonry {
+    columns: 3;
+  }
+}
+
+@media (min-width: 1024px) {
+  .masonry {
+    columns: 4;
+  }
+}
+
+@media (min-width: 1280px) {
+  .masonry {
+    columns: 5;
+  }
+}
+
+.masonry > * {
+  break-inside: avoid;
+  margin-bottom: 0.75rem;
 }

@@ -59,10 +59,7 @@ export function createApp(): Hono {
 
   // ── Frontend static files (production) ──────────────
   if (fs.existsSync(distDir)) {
-    app.use(
-      "/assets/*",
-      serveStatic({ root: "./frontend/dist" })
-    );
+    app.use("/*", serveStatic({ root: "./frontend/dist" }));
     app.get("*", (c) => {
       const indexPath = path.join(distDir, "index.html");
       if (!fs.existsSync(indexPath)) {
