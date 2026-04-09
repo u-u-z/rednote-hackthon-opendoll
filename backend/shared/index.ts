@@ -58,6 +58,7 @@ function ensureSchema(sqlite: Database.Database) {
   addColumnIfMissing("orders", "model_url", "TEXT");
   addColumnIfMissing("orders", "feat_uuid", "TEXT");
   addColumnIfMissing("orders", "shapekeys", "TEXT");
+  addColumnIfMissing("orders", "multiview", "TEXT");
 }
 
 export function cfg(): Config {

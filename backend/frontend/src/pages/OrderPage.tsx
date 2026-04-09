@@ -81,8 +81,8 @@ export function OrderPage({ orderId }: { orderId: string }) {
 
           <div className="flex flex-col lg:flex-row lg:gap-8 lg:items-stretch">
             {/* ── Identity Card column (left on wide) ── */}
-            <div className="order-1 w-full lg:w-[420px] lg:shrink-0 space-y-6">
-              <div className="id-card border border-border bg-card relative overflow-hidden">
+            <div className="order-1 w-full lg:w-[420px] lg:shrink-0 flex flex-col gap-6">
+              <div className="id-card border border-border bg-card relative overflow-hidden flex-1 flex flex-col">
                 {/* Card header */}
                 <div className="px-5 py-3 border-b border-border flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -100,7 +100,7 @@ export function OrderPage({ orderId }: { orderId: string }) {
                 </div>
 
                 {/* Card body */}
-                <div className="p-5">
+                <div className="p-5 flex-1">
                   {/* Photo + core identity */}
                   <div className="flex gap-5">
                     {/* Photo */}
@@ -223,18 +223,41 @@ export function OrderPage({ orderId }: { orderId: string }) {
               </div>
             </div>
 
-            {/* ── 3D Viewer column (right on wide, below on narrow) ── */}
-            {order.shapekeys && (
-              <div className="order-2 lg:flex-1 mt-6 lg:mt-0">
-                <Suspense
-                  fallback={
-                    <div className="aspect-square lg:aspect-auto lg:h-full bg-[#141414] border border-border flex items-center justify-center">
-                      <span className="text-xs text-muted-foreground animate-pulse">加载 3D 预览…</span>
-                    </div>
-                  }
-                >
-                  <FaceViewer shapekeys={order.shapekeys} />
-                </Suspense>
+            {/* ── Right column: multiview + 3D viewer ── */}
+            {(order.multiview || order.shapekeys) && (
+              <div className="order-2 lg:flex-1 mt-6 lg:mt-0 flex flex-col gap-4">
+                {/* Multiview images */}
+                {order.multiview && (
+                  <div className="grid grid-cols-3 gap-2">
+                    {(["front", "left", "back"] as const).map((angle) => (
+                      <div key={angle} className="relative border border-border overflow-hidden bg-muted">
+                        <img
+                          src={order.multiview![angle]}
+                          alt={angle}
+                          className="w-full aspect-square object-cover"
+                        />
+                        <span className="absolute bottom-0 inset-x-0 text-center text-[9px] tracking-widest uppercase text-muted-foreground/60 bg-background/70 py-0.5">
+                          {angle === "front" ? "正面" : angle === "left" ? "左侧" : "背面"}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* 3D Viewer */}
+                {order.shapekeys && (
+                  <div className="flex-1">
+                    <Suspense
+                      fallback={
+                        <div className="aspect-square bg-[#141414] border border-border flex items-center justify-center">
+                          <span className="text-xs text-muted-foreground animate-pulse">加载 3D 预览…</span>
+                        </div>
+                      }
+                    >
+                      <FaceViewer shapekeys={order.shapekeys} />
+                    </Suspense>
+                  </div>
+                )}
               </div>
             )}
           </div>

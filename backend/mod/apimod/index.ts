@@ -108,6 +108,7 @@ export interface OrderDetailResp {
   model_url: string | null;
   feat_uuid: string | null;
   shapekeys: Record<string, number> | null;
+  multiview: { front: string; left: string; back: string } | null;
   status: OrderStatus;
   note: string | null;
   created_at: string;

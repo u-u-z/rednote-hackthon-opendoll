@@ -24,10 +24,12 @@ function FaceMeshes({
   geometries,
   morphTargetDictionary,
   shapekeys,
+  wireframe,
 }: {
   geometries: LoadedGeometry[];
   morphTargetDictionary: Record<string, number>;
   shapekeys: Record<string, number>;
+  wireframe: boolean;
 }) {
   const meshRefs = useRef<Map<string, THREE.Mesh>>(new Map());
 
@@ -53,8 +55,9 @@ function FaceMeshes({
         color: FACE_COLOR,
         roughness: 0.6,
         metalness: 0,
+        wireframe,
       }),
-    [],
+    [wireframe],
   );
 
   const HIDDEN_PARTS = new Set(["人耳", "妖精耳", "兽耳"]);
@@ -124,10 +127,12 @@ function FaceScene({
   geometries,
   morphTargetDictionary,
   shapekeys,
+  wireframe,
 }: {
   geometries: LoadedGeometry[];
   morphTargetDictionary: Record<string, number>;
   shapekeys: Record<string, number>;
+  wireframe: boolean;
 }) {
   return (
     <Canvas
@@ -147,6 +152,7 @@ function FaceScene({
             geometries={geometries}
             morphTargetDictionary={morphTargetDictionary}
             shapekeys={shapekeys}
+            wireframe={wireframe}
           />
         </group>
       </AutoRotate>
@@ -164,6 +170,7 @@ export function StlViewer({ shapekeys }: FaceViewerProps) {
   const [wasmData, setWasmData] = useState<WasmInitResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
+  const [wireframe, setWireframe] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -212,14 +219,22 @@ export function StlViewer({ shapekeys }: FaceViewerProps) {
   }
 
   return (
-    <div className="relative aspect-square bg-[#141414] border border-border overflow-hidden">
+    <div className="relative aspect-square lg:aspect-auto lg:h-full min-h-[300px] bg-[#141414] border border-border overflow-hidden">
       <ErrorBoundary onError={() => setHasError(true)}>
         <FaceScene
           geometries={wasmData.geometries}
           morphTargetDictionary={wasmData.morphTargetDictionary}
           shapekeys={shapekeys}
+          wireframe={wireframe}
         />
       </ErrorBoundary>
+      <button
+        onClick={() => setWireframe((w) => !w)}
+        className="absolute top-2 right-2 px-2 py-1 text-[10px] tracking-wider uppercase border transition-colors bg-black/50 backdrop-blur-sm hover:bg-white/10"
+        style={{ color: wireframe ? "#f3c4bf" : "rgba(255,255,255,0.5)", borderColor: wireframe ? "rgba(243,196,191,0.4)" : "rgba(255,255,255,0.15)" }}
+      >
+        wireframe
+      </button>
     </div>
   );
 }

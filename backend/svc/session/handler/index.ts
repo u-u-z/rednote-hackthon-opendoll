@@ -270,6 +270,18 @@ export function sessionRoutes(): Hono {
       console.warn("[order] 3D model generation skipped:", err instanceof Error ? err.message : err);
     }
 
+    // Attempt multiview generation (best-effort)
+    let multiview: MultiviewResp | undefined;
+    try {
+      const faceUrl = face?.image_url;
+      if (faceUrl) {
+        multiview = await generateMultiview(id, faceUrl);
+        console.log(`[order] multiview generated for session ${id}`);
+      }
+    } catch (err) {
+      console.warn("[order] multiview generation skipped:", err instanceof Error ? err.message : err);
+    }
+
     const order = orderDao.createOrder({
       sessionId: id,
       agentName: session.agentName,
@@ -281,6 +293,7 @@ export function sessionRoutes(): Hono {
       modelUrl: modelUrl ?? undefined,
       featUuid,
       shapekeys,
+      multiview,
       note: body.note,
     });
 

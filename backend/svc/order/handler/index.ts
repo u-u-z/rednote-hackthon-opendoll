@@ -16,6 +16,11 @@ export function orderRoutes(): Hono {
       try { parsedShapekeys = JSON.parse(order.shapekeys); } catch { /* ignore */ }
     }
 
+    let parsedMultiview: { front: string; left: string; back: string } | null = null;
+    if (order.multiview) {
+      try { parsedMultiview = JSON.parse(order.multiview); } catch { /* ignore */ }
+    }
+
     return c.json({
       order_id: order.id,
       agent_name: order.agentName,
@@ -28,6 +33,7 @@ export function orderRoutes(): Hono {
       model_url: order.modelUrl,
       feat_uuid: order.featUuid ?? null,
       shapekeys: parsedShapekeys,
+      multiview: parsedMultiview,
       status: order.status,
       note: order.note,
       created_at: order.createdAt,

@@ -22,6 +22,7 @@ export interface OrderDetail {
   model_url: string | null;
   feat_uuid: string | null;
   shapekeys: Record<string, number> | null;
+  multiview: { front: string; left: string; back: string } | null;
   status: string;
   note: string | null;
   created_at: string;

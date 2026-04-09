@@ -43,6 +43,7 @@ export const orders = sqliteTable("orders", {
   modelUrl: text("model_url"),
   featUuid: text("feat_uuid"),
   shapekeys: text("shapekeys"),
+  multiview: text("multiview"),
   status: text("status").$type<OrderStatus>().notNull().default("pending"),
   note: text("note"),
   createdAt: text("created_at")
