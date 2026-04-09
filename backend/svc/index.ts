@@ -41,6 +41,30 @@ export function createApp(): Hono {
     });
   });
 
+  app.get("/runtime/:filename", async (c) => {
+    const filename = c.req.param("filename");
+    if (/[^a-zA-Z0-9._\-]/.test(filename)) {
+      return c.json({ error: "invalid filename" }, 400);
+    }
+    const filepath = path.join(publicDir, "runtime", filename);
+    if (!filepath.startsWith(publicDir) || !fs.existsSync(filepath)) {
+      return c.json({ error: "not found" }, 404);
+    }
+    const data = fs.readFileSync(filepath);
+    const ext = path.extname(filename);
+    const contentType: Record<string, string> = {
+      ".wasm": "application/wasm",
+      ".bin": "application/octet-stream",
+      ".json": "application/json",
+    };
+    return new Response(data, {
+      headers: {
+        "Content-Type": contentType[ext] || "application/octet-stream",
+        "Cache-Control": "public, max-age=86400",
+      },
+    });
+  });
+
   app.get("/:file{.+\\.(?:md|json|txt)$}", async (c) => {
     const file = c.req.param("file");
     if (/[^a-zA-Z0-9._\-\/]/.test(file)) {

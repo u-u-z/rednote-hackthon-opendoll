@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "models": 5,
+  "size": {
+    "original": 10108916,
+    "compressed": 3786886,
+    "final": 3801628
+  },
+  "chunks": 4,
+  "createdAt": "2026-01-29T07:59:21.171Z",
+  "_debug": {
+    "source": [
+      "v20251231-front.glb",
+      "v20251231-back.glb",
+      "v20250115-ear.glb"
+    ],
+    "xorSeed": "0x6dce5984"
+  }
+}

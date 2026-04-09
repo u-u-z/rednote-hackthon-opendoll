@@ -12,6 +12,8 @@ interface CreateOrderOpts {
   context: string;
   size?: number;
   modelUrl?: string;
+  featUuid?: string;
+  shapekeys?: Record<string, number>;
   note?: string;
 }
 
@@ -29,6 +31,8 @@ export function createOrder(opts: CreateOrderOpts) {
       context: opts.context,
       size: opts.size ?? 40,
       modelUrl: opts.modelUrl,
+      featUuid: opts.featUuid,
+      shapekeys: opts.shapekeys ? JSON.stringify(opts.shapekeys) : undefined,
       note: opts.note,
     })
     .run();

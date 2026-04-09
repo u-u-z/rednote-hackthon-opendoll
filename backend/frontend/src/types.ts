@@ -20,6 +20,8 @@ export interface OrderDetail {
   price: string;
   currency: string;
   model_url: string | null;
+  feat_uuid: string | null;
+  shapekeys: Record<string, number> | null;
   status: string;
   note: string | null;
   created_at: string;

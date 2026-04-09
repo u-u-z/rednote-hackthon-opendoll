@@ -11,6 +11,11 @@ export function orderRoutes(): Hono {
     const order = dao.getOrder(orderId);
     if (!order) return c.json({ error: "order not found" }, 404);
 
+    let parsedShapekeys: Record<string, number> | null = null;
+    if (order.shapekeys) {
+      try { parsedShapekeys = JSON.parse(order.shapekeys); } catch { /* ignore */ }
+    }
+
     return c.json({
       order_id: order.id,
       agent_name: order.agentName,
@@ -21,6 +26,8 @@ export function orderRoutes(): Hono {
       price: order.price,
       currency: order.currency,
       model_url: order.modelUrl,
+      feat_uuid: order.featUuid ?? null,
+      shapekeys: parsedShapekeys,
       status: order.status,
       note: order.note,
       created_at: order.createdAt,

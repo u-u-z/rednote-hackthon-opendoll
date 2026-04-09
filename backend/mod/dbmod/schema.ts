@@ -41,6 +41,8 @@ export const orders = sqliteTable("orders", {
   price: text("price").notNull().default("998.00"),
   currency: text("currency").notNull().default("CNY"),
   modelUrl: text("model_url"),
+  featUuid: text("feat_uuid"),
+  shapekeys: text("shapekeys"),
   status: text("status").$type<OrderStatus>().notNull().default("pending"),
   note: text("note"),
   createdAt: text("created_at")

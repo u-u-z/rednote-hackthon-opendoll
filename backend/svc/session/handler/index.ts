@@ -253,6 +253,8 @@ export function sessionRoutes(): Hono {
 
     // Attempt 3D model generation (best-effort, don't block order on failure)
     let modelUrl: string | null = null;
+    let featUuid: string | undefined;
+    let shapekeys: Record<string, number> | undefined;
     try {
       const mod = await import("../../../lib/kigland.js");
       const origin = new URL(c.req.url).origin;
@@ -261,6 +263,8 @@ export function sessionRoutes(): Hono {
         : `${origin}${face?.image_url}`;
       const result = await mod.generateModel(imageUrl, orderSize);
       modelUrl = result.model_url;
+      featUuid = result.feat_uuid;
+      shapekeys = result.shapekeys;
       console.log(`[order] 3D model generated: ${modelUrl}`);
     } catch (err) {
       console.warn("[order] 3D model generation skipped:", err instanceof Error ? err.message : err);
@@ -275,6 +279,8 @@ export function sessionRoutes(): Hono {
       context: `${session.agentContext.role} · ${session.agentContext.personality}`,
       size: orderSize,
       modelUrl: modelUrl ?? undefined,
+      featUuid,
+      shapekeys,
       note: body.note,
     });
 
