@@ -337,6 +337,9 @@ function ManifestoSection() {
         </div>
 
         <div className="space-y-3">
+          <p className="text-sm text-foreground leading-relaxed">
+            我们让可爱的面容不止戴在人身上。
+          </p>
           <p className="text-xs text-muted-foreground leading-relaxed">
             KIGLAND
             用三年时间解决了一个问题：如何快速、规模化地制造不同的二次元脸。从参数化建模到柔性制造，已经服务真人
