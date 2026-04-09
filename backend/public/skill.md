@@ -250,7 +250,7 @@ Response (`201 Created`):
 {
   "order_id": "ord_xxxxxxxxxxxx",
   "order_url": "https://next.opendoll.cn/order/ord_xxxxxxxxxxxx",
-  "model_url": "https://kigland-stl.obs.cn-east-3.myhuaweicloud.com/2026-04-09/xxx.40.stl.zip"
+  "model_url": "https://cdn.opendoll.cn/models/xxx.40.stl.zip"
 }
 ```
 
